@@ -149,14 +149,33 @@
     });
   }
 
+  function initStaticButtons() {
+    // Prevent default navigation for anchor elements styled as buttons across pages
+    document.addEventListener('click', function (e) {
+      const a = e.target.closest('a');
+      if (!a) return;
+
+      // treat anchors with these classes as UI buttons (static)
+      const buttonLike = a.classList.contains('btn') || a.classList.contains('card-link') || a.classList.contains('header-cta') || a.id === 'planCta';
+
+      if (buttonLike) {
+        // allow explicit opt-out by adding data-allow-navigate="true"
+        if (a.dataset.allowNavigate === 'true') return;
+        e.preventDefault();
+        a.setAttribute('role', 'button');
+      }
+    });
+  }
+
   async function init() {
     await Promise.all([
-      injectFragment('header', 'header.html'),
-      injectFragment('footer', 'footer.html')
+      injectFragment('header', '/header.html'),
+      injectFragment('footer', '/footer.html')
     ]);
 
     initNavigation();
     initPlanBuilder();
+    initStaticButtons();
   }
 
   init();

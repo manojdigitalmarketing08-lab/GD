@@ -42,7 +42,6 @@ body {
   background: var(--bg);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
 }
 img { max-width: 100%; display: block; }
 a { color: inherit; text-decoration: none; }
@@ -60,6 +59,11 @@ button { font: inherit; cursor: pointer; }
   border-radius: 0 0 8px 0;
 }
 .skip-link:focus { left: 0; }
+
+/* The injected header/footer wrappers must not form their own box —
+   otherwise they become the containing block for .site-header's
+   position: sticky and cap its travel range at their own height. */
+#header, #footer { display: contents; }
 
 :focus-visible {
   outline: 2px solid var(--brand-dark);
@@ -123,7 +127,12 @@ p { color: var(--text-muted); }
 .btn-sm { padding: 10px 18px; font-size: 0.875rem; }
 
 /* ===== Hero ===== */
-.hero { padding-block: var(--space-7) var(--space-6); overflow: hidden; }
+.hero {
+  /* reduced top padding: now 20% of original var(--space-7) */
+  padding-top: calc(var(--space-7) * 0.2);
+  padding-bottom: var(--space-6);
+  overflow: hidden;
+}
 .hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -230,6 +239,44 @@ p { color: var(--text-muted); }
   display: none;
 }
 
+/* ===== Hero trust / awards bar ===== */
+.hero-trust {
+  background: #ffffff;
+  padding-block: var(--space-6);
+  margin-top: var(--space-5);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.hero-trust .section-title { color: var(--ink); margin-bottom: var(--space-4); text-align: center; }
+.trust-logos {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: clamp(16px, 6vw, 48px);
+  max-width: 1100px;
+  margin-inline: auto;
+  padding-inline: clamp(8px, 2vw, 24px);
+  flex-wrap: nowrap; /* keep logos on one row on wide screens */
+}
+.trust-item { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; }
+.trust-item img {
+  max-height: 120px;
+  width: auto;
+  object-fit: contain;
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: 6px;
+  box-shadow: none;
+  transition: transform 180ms ease;
+}
+.trust-item img:hover { transform: translateY(-4px); }
+
+@media (max-width: 880px) {
+  .trust-logos { justify-content: center; gap: var(--space-5); flex-wrap: wrap; }
+  .trust-item { flex: 0 1 45%; margin-bottom: var(--space-4); }
+  .trust-item img { max-height: 100px; }
+}
+
 /* ===== About ===== */
 .about { padding-block: var(--space-6); }
 .about-grid {
@@ -274,7 +321,8 @@ p { color: var(--text-muted); }
 .about-checklist-detailed li::after { top: 9px; }
 .checklist-item-title { font-size: 0.98rem; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
 .checklist-item-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin: 0; }
-.agency-types-footnote { margin-top: var(--space-5); max-width: 760px; margin-left: auto; margin-right: auto; }
+.agency-types .section-sub.center { max-width: 624px; }
+.agency-types-footnote { margin-top: var(--space-3); max-width: 912px; margin-left: auto; margin-right: auto; }
 .stat-row {
   display: flex;
   gap: var(--space-6);
@@ -804,27 +852,45 @@ p { color: var(--text-muted); }
   margin-top: var(--space-3);
   padding-top: var(--space-6);
   border-top: 1px solid var(--border);
+  text-align: center;
 }
 .playbooks-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  margin-bottom: var(--space-3);
+  letter-spacing: 0.06em;
+  color: var(--brand-dark);
+  background: var(--white);
+  padding: 9px 20px;
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-4);
 }
-.playbooks-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.playbooks-title::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brand);
+  flex-shrink: 0;
+}
+.playbooks-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .playbook-tag {
   display: inline-flex;
   align-items: center;
   padding: 7px 14px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: transparent;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: #fff;
   font-size: 0.8rem;
   font-weight: 500;
-  color: var(--text-muted);
+  transition: background-color 150ms ease, transform 150ms ease;
 }
+.playbook-tag:hover { background: var(--ink-soft); border-color: var(--ink-soft); transform: translateY(-1px); }
 
 /* ===== Services Index (grid, no card chrome) ===== */
 .services-index { padding-block: var(--space-6); background: var(--bg-soft); }
@@ -1049,7 +1115,6 @@ p { color: var(--text-muted); }
 
 /* ===== Plan Builder (interactive qualifier) ===== */
 .plan-builder { padding-block: var(--space-6); }
-.plan-builder-note { margin-top: var(--space-5); max-width: 620px; }
 .plan-panel {
   margin-top: var(--space-6);
   background: var(--bg-card);
