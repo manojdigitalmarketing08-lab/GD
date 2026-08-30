@@ -1,5 +1,5 @@
-:root{
-    /* canonical tokens — must match styles.css exactly */
+﻿:root{
+    /* canonical tokens â€” must match styles.css exactly */
     --brand:#18DEEB;
     --brand-dark:#18A7B5;
     --ink:#0F1017;
@@ -26,7 +26,7 @@
     --font-heading: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --maxw:1180px;
 
-    /* service.css-only aliases — kept so existing rules below don't need renaming */
+    /* service.css-only aliases â€” kept so existing rules below don't need renaming */
     --ink-soft:#0F1B21;
     --cream: var(--bg);
     --cream-2: var(--bg-soft);
@@ -44,12 +44,16 @@
   h1,h2,h3,h4{font-family:var(--font-heading); line-height:1.1; letter-spacing:-0.02em; font-weight:700;}
   a{color:inherit; text-decoration:none;}
   img,svg{display:block; max-width:100%;}
-  .wrap{max-width:var(--maxw); margin-inline:auto; padding-inline:clamp(20px,5vw,32px);}
+  .wrap{max-width:var(--maxw); margin-inline:auto; padding-inline:max(20px,7vw);}
   section{padding-block:clamp(32px,4vw,56px);}
   .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:0.72rem; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--lime-dim); margin-bottom:var(--space-3);}
   .eyebrow::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--lime);}
   h2.section-title{font-size:clamp(1.6rem,3.4vw,2.4rem); max-width:660px;}
   .section-sub{color:var(--text-dim); max-width:540px; font-size:1rem; margin-top:var(--space-3);}
+  .key-takeaway{background:var(--bg-alt,#F6F5F2); padding:20px 0;}
+  .key-takeaway .wrap{max-width:900px;}
+  .key-takeaway p{margin:0; font-size:0.98rem; line-height:1.5;}
+  .page-meta-line{font-size:0.82rem; opacity:0.65; margin-top:24px;}
 
 #proven-performance .eyebrow,
 #services .eyebrow,
@@ -168,7 +172,7 @@
   @media (max-width:560px){ .deliv-grid{grid-template-columns:1fr;} }
   .deliv-card{border:1px solid var(--border); border-radius:var(--radius-sm); padding:var(--space-5); display:flex; gap:14px; background:var(--card);}
   .deliv-num{font-family:var(--font-heading); font-weight:700; color:var(--lime-dim); font-size:0.85rem; flex:none;}
-  .deliv-card h4{font-size:0.96rem; margin-bottom:4px;}
+  .deliv-card h3{font-size:0.96rem; margin-bottom:4px;}
   .deliv-card p{font-size:0.83rem; color:var(--text-dim);}
 
   /* 5. WHY WORK WITH US */
@@ -177,7 +181,7 @@
   .why-check{display:flex; gap:14px; padding-block:16px; border-bottom:1px solid var(--border);}
   .why-check:last-child{border-bottom:none;}
   .why-check .ic{flex:none; width:24px; height:24px; border-radius:50%; background:var(--lime); display:flex; align-items:center; justify-content:center; margin-top:2px;}
-  .why-check h4{font-size:0.94rem; margin-bottom:4px;}
+  .why-check h3{font-size:0.94rem; margin-bottom:4px;}
   .why-check p{font-size:0.85rem; color:var(--text-dim);}
 
   /* 6. WHAT SETS US APART */
@@ -186,7 +190,7 @@
   .apart-row{display:grid; grid-template-columns:56px 1fr; gap:20px; padding-block:20px; border-top:1px solid var(--border); align-items:flex-start;}
   .apart-row:last-child{border-bottom:1px solid var(--border);}
   .apart-row .apnum{font-family:var(--font-heading); font-weight:700; color:var(--border); font-size:1.2rem;}
-  .apart-row h4{font-size:1rem; margin-bottom:6px;}
+  .apart-row h3{font-size:1rem; margin-bottom:6px;}
   .apart-row p{font-size:0.88rem; color:var(--text-dim); max-width:640px;}
 
   /* 7. FRAMEWORK PILLARS */
@@ -195,7 +199,7 @@
   @media (max-width:560px){ .pillar-grid{grid-template-columns:1fr;} }
   .pillar-card{background:var(--ink); border-radius:var(--radius-md); padding:var(--space-6); position:relative;}
   .pillar-card .ptag{font-size:0.72rem; color:var(--lime); font-weight:700; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:var(--space-4);}
-  .pillar-card h4{color:var(--text-on-dark); font-size:1.05rem; margin-bottom:10px;}
+  .pillar-card h3{color:var(--text-on-dark); font-size:1.05rem; margin-bottom:10px;}
   .pillar-card p{color:var(--text-on-dark-dim); font-size:0.85rem;}
 
   /* 8. INDUSTRY SECTOR CARDS */
@@ -203,7 +207,7 @@
   @media (max-width:900px){ .industry-grid{grid-template-columns:repeat(2,minmax(0,1fr)); max-width:760px; } }
   @media (max-width:560px){ .industry-grid{grid-template-columns:1fr; max-width:100%; } }
   .industry-card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius-md); padding:var(--space-5);}
-  .industry-card h4{font-size:0.98rem; margin-bottom:8px;}
+  .industry-card h3{font-size:0.98rem; margin-bottom:8px;}
   .industry-card p{font-size:0.84rem; color:var(--text-dim); margin-bottom:var(--space-4);}
   .industry-card-cta{display:flex; flex-direction:column;}
   .industry-card-cta .btn{margin-top:var(--space-4); align-self:flex-start;}
@@ -264,7 +268,7 @@
   details.faq-item p{margin-top:var(--space-3); font-size:0.92rem; color:var(--text-dim); max-width:46ch;}
   .faq-side{position:sticky; top:96px; background:var(--bg-card); border-radius:var(--radius-lg); padding:var(--space-5); text-align:left;}
   .faq-side .badge{width:34px; height:34px; border-radius:50%; background:var(--lime); display:flex; align-items:center; justify-content:center; margin-bottom:var(--space-3);}
-  .faq-side h4{font-size:1.15rem; margin-bottom:var(--space-2);}
+  .faq-side h3{font-size:1.15rem; margin-bottom:var(--space-2);}
   .faq-side p{font-size:0.86rem; color:var(--text-dim); margin-bottom:var(--space-4);}
   @media (max-width:860px){ .faq-side{position:static;} }
 

@@ -21,7 +21,7 @@
   justify-content: space-between;
   gap: var(--space-4);
   padding-block: 16px;
-  padding-inline: clamp(16px, 4vw, 4%);
+  padding-inline: max(16px, 7vw);
 }
 .logo {
   display: inline-flex;
@@ -154,7 +154,7 @@
 .btn-dark.header-cta:hover { background: var(--brand-dark, var(--ink)); color: #fff !important; }
 
 /* ===== Footer ===== */
-.site-footer { background: #0f1118; color: #fff; padding-top: var(--space-7); padding-inline: clamp(20px, 4vw, 4%); }
+.site-footer { background: #0f1118; color: #fff; padding-top: var(--space-7); padding-inline: max(20px, 7vw); }
 .footer-grid {
   display: grid;
   grid-template-columns: 1.4fr 1fr 1fr 1fr;

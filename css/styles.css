@@ -73,8 +73,12 @@ button { font: inherit; cursor: pointer; }
 .container {
   max-width: 1240px;
   margin-inline: auto;
-  padding-inline: clamp(20px, 4vw, 24px);
+  padding-inline: max(20px, 7vw);
 }
+
+.key-takeaway { background: var(--bg-alt, #F6F5F2); padding: 20px 0; }
+.key-takeaway .container { max-width: 900px; }
+.key-takeaway p { margin: 0; font-size: 0.98rem; line-height: 1.5; }
 
 h1, h2, h3 { font-family: var(--font-heading); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
 p { color: var(--text-muted); }
