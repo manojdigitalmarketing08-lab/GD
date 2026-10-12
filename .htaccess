@@ -1,0 +1,33 @@
+Options -Indexes -MultiViews
+DirectoryIndex router.php
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Real static assets are served directly by Apache.
+  RewriteCond %{REQUEST_URI} \.(css|js|webp|png|jpe?g|svg|gif|ico|woff2?|txt|xml)$ [NC]
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+
+  # Everything else (pages, legacy .html URLs, 404s) goes through the router.
+  RewriteCond %{REQUEST_URI} !^/router\.php$
+  RewriteRule ^ router.php [L,QSA]
+</IfModule>
+
+# Block direct access to hidden/dev files.
+<FilesMatch "^\.|\.(md|log|sh)$">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType image/webp "access plus 6 months"
+</IfModule>

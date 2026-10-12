@@ -1,0 +1,58 @@
+/* ===== GD brand layer =====
+   Follows the Single Grain pattern: neutral surfaces (white, light grey,
+   charcoal) and ONE accent colour used in fixed places. Our accent is the
+   brand blue (--brand #18DEEB on dark, --brand-dark #18A7B5 on light). */
+:root {
+  --accent: #18DEEB;          /* on dark surfaces */
+  --accent-ink: #18A7B5;      /* on light surfaces */
+  --charcoal: #1C1E24;
+  --charcoal-2: #25282F;
+  --surface-grey: #F1F4F4;
+
+  --grad-accent: linear-gradient(90deg, #18A7B5 0%, #18C8D6 100%);
+  --grad-text: linear-gradient(90deg, #12909C 0%, #18A7B5 55%, #16BFCD 100%);
+  --grad-text-dark: linear-gradient(90deg, #18DEEB 0%, #8CF1F7 100%);
+  --grad-panel: linear-gradient(160deg, #25282F 0%, #1C1E24 55%, #15161B 100%);
+
+  /* Growth-bars motif (bars growing from the panel edge), used on dark panels */
+  --motif: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2772%27 height=%27180%27 viewBox=%270 0 72 180%27 fill=%27none%27%3E%3Crect x=%270%27 y=%27150%27 width=%2714%27 height=%274%27 rx=%272%27 fill=%27%2318DEEB%27 fill-opacity=%270.25%27/%3E%3Crect x=%270%27 y=%27126%27 width=%2722%27 height=%274%27 rx=%272%27 fill=%27%2318DEEB%27 fill-opacity=%270.35%27/%3E%3Crect x=%270%27 y=%27102%27 width=%2730%27 height=%274%27 rx=%272%27 fill=%27%2318DEEB%27 fill-opacity=%270.5%27/%3E%3Crect x=%270%27 y=%2778%27 width=%2740%27 height=%274%27 rx=%272%27 fill=%27%2318DEEB%27 fill-opacity=%270.65%27/%3E%3Crect x=%270%27 y=%2754%27 width=%2750%27 height=%274%27 rx=%272%27 fill=%27%2318DEEB%27 fill-opacity=%270.8%27/%3E%3Crect x=%270%27 y=%2730%27 width=%2758%27 height=%274%27 rx=%272%27 fill=%27%2318DEEB%27 fill-opacity=%271%27/%3E%3Ccircle cx=%2766%27 cy=%2732%27 r=%273.5%27 fill=%27%2318DEEB%27/%3E%3Cpath d=%27M4 160 L58 34%27 stroke=%27%2318DEEB%27 stroke-opacity=%27.25%27 stroke-width=%271%27 stroke-dasharray=%272 4%27/%3E%3C/svg%3E");
+}
+
+::selection { background: rgba(24, 222, 235, 0.3); color: #0F1017; }
+
+/* ----- Shared header: outlined CTA like the reference, blue on hover ----- */
+.site-header .btn-dark.header-cta {
+  background: transparent; color: #0F1017 !important; border: 1px solid #0F1017; box-shadow: none;
+}
+.site-header .btn-dark.header-cta svg { color: #0F1017 !important; }
+.site-header .btn-dark.header-cta:hover { background: var(--accent); border-color: var(--accent); color: #0F1017 !important; }
+.main-nav a:hover, .mega-details summary:hover { color: var(--accent-ink); }
+
+/* ----- Shared footer: neutral charcoal, blue only in accents ----- */
+.site-footer { background: var(--charcoal); }
+.site-footer .footer-nav a:hover { color: var(--accent); }
+.site-footer .footer-social a:hover { background: var(--accent); }
+
+/* ----- Service pages (classes only used there) ----- */
+h2.section-title {
+  font-weight: 600;
+  background: linear-gradient(90deg, #0F1017 0%, #0F1017 45%, #18A7B5 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.hero h1 .accent { color: var(--accent-ink); }
+.btn-primary { background: var(--accent); color: #0F1017; }
+.btn-primary:hover { box-shadow: 0 10px 26px rgba(24, 167, 181, 0.3); }
+.btn-dark:not(.header-cta) { background: var(--charcoal); }
+.btn-dark:not(.header-cta):hover { background: var(--charcoal-2); }
+.eyebrow { color: var(--accent-ink); }
+.eyebrow::before { background: var(--accent); }
+.stat-card { background: var(--grad-panel); }
+.stat-card b { color: var(--accent); }
+.deliv-num, .apnum { color: var(--accent-ink); }
+
+/* Service page image (sits directly under the hero) */
+.service-figure { padding: clamp(28px, 5vw, 56px) 0 clamp(8px, 2vw, 24px); background: #fff; }
+.service-figure figure { margin: 0; border-radius: 20px; overflow: hidden; aspect-ratio: 1600 / 840; box-shadow: 0 24px 60px -28px rgba(12, 18, 24, .45); background: #14110f; }
+.service-figure img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (max-width: 640px) { .service-figure figure { border-radius: 14px; aspect-ratio: 4 / 3; } }
