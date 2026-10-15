@@ -98,14 +98,8 @@
     });
   });
 
-  // Forms: no backend yet, so confirm in place instead of reloading
+  // Forms post to /api/lead.php via script.js (gdHandleForm)
   document.querySelectorAll('.st-form').forEach(function (form) {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var done = document.createElement('p');
-      done.className = 'st-form-done';
-      done.textContent = 'Thanks! A strategist will reply within one business day with your plan.';
-      form.replaceChildren(done);
-    });
+    window.gdHandleForm(form, 'service-form');
   });
 })();

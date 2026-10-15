@@ -1,0 +1,26 @@
+-- Optional: lead.php creates this table automatically on first use.
+CREATE TABLE IF NOT EXISTS leads (
+  id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  created_at      DATETIME NOT NULL,
+  name            VARCHAR(120) NOT NULL,
+  email           VARCHAR(190) NOT NULL,
+  phone           VARCHAR(40)  NULL,
+  website         VARCHAR(255) NULL,
+  form_type       VARCHAR(60)  NOT NULL,
+  page_path       VARCHAR(255) NOT NULL,
+  page_url        VARCHAR(500) NULL,
+  source          VARCHAR(120) NOT NULL,
+  utm_source      VARCHAR(120) NULL,
+  utm_medium      VARCHAR(120) NULL,
+  utm_campaign    VARCHAR(160) NULL,
+  referrer        VARCHAR(500) NULL,
+  details         TEXT NULL,
+  ip              VARCHAR(45)  NULL,
+  user_agent      VARCHAR(255) NULL,
+  email_status    VARCHAR(255) NULL,
+  whatsapp_status VARCHAR(255) NULL,
+  KEY idx_created (created_at),
+  KEY idx_ip_created (ip, created_at),
+  KEY idx_page (page_path),
+  KEY idx_source (source)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -1,0 +1,8 @@
+# Only lead.php is public; config, schema, docs and libraries are not.
+<FilesMatch "^(config(\.sample)?\.php|schema\.sql|README-leads\.md)$">
+  Require all denied
+</FilesMatch>
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^lib/ - [F,L]
+</IfModule>

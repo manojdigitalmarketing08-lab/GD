@@ -1,4 +1,90 @@
 (function () {
+  // ---- Lead capture: every form posts to /api/lead.php (DB, email, WhatsApp) ----
+  var TOUCH_KEY = 'gd_touch';
+  function readTouch() {
+    try { return JSON.parse(sessionStorage.getItem(TOUCH_KEY)) || {}; } catch (e) { return {}; }
+  }
+  (function captureTouch() {
+    var t = readTouch();
+    if (t.captured) return;
+    var q = new URLSearchParams(location.search);
+    ['utm_source', 'utm_medium', 'utm_campaign'].forEach(function (k) { if (q.get(k)) t[k] = q.get(k); });
+    if (document.referrer) {
+      try { if (new URL(document.referrer).host !== location.host) t.referrer = document.referrer; } catch (e) {}
+    }
+    t.captured = true;
+    try { sessionStorage.setItem(TOUCH_KEY, JSON.stringify(t)); } catch (e) {}
+  })();
+
+  function collectLead(form, formType) {
+    var f = {}, details = {};
+    Array.prototype.forEach.call(form.elements, function (el) {
+      if (!el.name || el.type === 'submit' || el.type === 'button') return;
+      if (el.type === 'checkbox') {
+        if (el.checked) (details[el.name] = details[el.name] || []).push(el.value);
+        return;
+      }
+      if (el.type === 'radio' && !el.checked) return;
+      var v = (el.value || '').trim();
+      if (!v) return;
+      if (el.name === 'name' || el.name === 'email' || el.name === 'phone') f[el.name] = v;
+      else if (el.name === 'website' || el.name === 'site') f.website = v;
+      else if (el.name === 'first_name') f.first = v;
+      else if (el.name === 'last_name') f.last = v;
+      else details[el.name] = v;
+    });
+    if (!f.name && (f.first || f.last)) f.name = [f.first, f.last].filter(Boolean).join(' ');
+    delete f.first; delete f.last;
+    var t = readTouch();
+    f.details = details;
+    f.form_type = formType;
+    f.page_path = location.pathname;
+    f.utm_source = t.utm_source; f.utm_medium = t.utm_medium; f.utm_campaign = t.utm_campaign;
+    f.referrer = t.referrer;
+    return f;
+  }
+
+  // Resolves on success (after redirecting), rejects with a user-facing message.
+  window.gdSubmitLead = function (form, formType) {
+    return fetch('/api/lead.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(collectLead(form, formType))
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (data) {
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Something went wrong. Please try again.');
+        window.location.href = '/thank-you';
+      });
+    }, function () {
+      throw new Error('Network error. Please check your connection and try again.');
+    });
+  };
+
+  // Shared submit wiring: busy state + inline error under the form.
+  window.gdHandleForm = function (form, formType, validate) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var err = form.querySelector('.gd-form-error');
+      if (!err) {
+        err = document.createElement('p');
+        err.className = 'gd-form-error';
+        err.setAttribute('role', 'alert');
+        form.appendChild(err);
+      }
+      err.textContent = '';
+      var msg = validate ? validate(form) : (form.checkValidity() ? '' : 'Please fill in the required fields.');
+      if (msg) { err.textContent = msg; return; }
+      var btn = form.querySelector('[type="submit"]');
+      if (btn) { btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = 'Sending…'; }
+      window.gdSubmitLead(form, formType).catch(function (ex) {
+        err.textContent = ex.message;
+        if (btn) { btn.disabled = false; btn.textContent = btn.dataset.label; }
+      });
+    });
+  };
+})();
+
+(function () {
   async function injectFragment(id, url) {
     const container = document.getElementById(id);
     if (!container) return;
@@ -116,20 +202,8 @@
         return;
       }
 
-      const lines = [
-        'Name: ' + name.value.trim(),
-        'Email: ' + email.value.trim(),
-        'Website: ' + (form.elements.website.value.trim() || 'Not provided'),
-        'Industry: ' + (form.elements.industry.value || 'Not specified'),
-        'Budget: ' + (form.elements.budget.value || 'Not specified'),
-        'Goals: ' + (checked('goals').join(', ') || 'Not specified'),
-        'Challenges: ' + (checked('challenges').join(', ') || 'Not specified')
-      ];
-
-      window.location.href = 'mailto:hello@gdmarketing.example.com'
-        + '?subject=' + encodeURIComponent('Marketing plan request')
-        + '&body=' + encodeURIComponent(lines.join('\n'));
-      summary.textContent = 'Thanks! Your email app should open with your answers ready to send.';
+      summary.textContent = 'Sending your plan request…';
+      window.gdSubmitLead(form, 'home-plan-form').catch(function (ex) { summary.textContent = ex.message; });
     });
   }
 
@@ -276,12 +350,79 @@
 
       if (buttonLike) {
         // allow explicit opt-out by adding data-allow-navigate="true",
-        // and always allow in-page section links such as "#marketing-plan"
+        // and always allow real links; only empty "#" placeholders are neutralised
         const href = a.getAttribute('href') || '';
-        if (a.dataset.allowNavigate === 'true' || /^\/?#.+/.test(href)) return;
+        if (a.dataset.allowNavigate === 'true' || (href && href !== '#')) return;
         e.preventDefault();
         a.setAttribute('role', 'button');
       }
+    });
+  }
+
+
+  function initPopup() {
+    var modal = document.createElement('div');
+    modal.className = 'gd-modal';
+    modal.hidden = true;
+    modal.innerHTML =
+      '<div class="gd-modal-box" role="dialog" aria-modal="true" aria-labelledby="gdModalTitle">' +
+      '<button type="button" class="gd-modal-close" aria-label="Close">&times;</button>' +
+      '<span class="pill">↪ Free Marketing Plan</span>' +
+      '<h2 class="title" id="gdModalTitle">Get Your <strong>Free Marketing Plan</strong></h2>' +
+      '<p>Tell us where to send it. A senior strategist replies within one business day.</p>' +
+      '<form class="gd-modal-form" novalidate>' +
+      '<input type="text" name="name" placeholder="Your name" aria-label="Your name" autocomplete="name" required>' +
+      '<input type="tel" name="phone" placeholder="Phone" aria-label="Phone" autocomplete="tel" required>' +
+      '<input type="email" name="email" placeholder="Work email" aria-label="Work email" autocomplete="email" required>' +
+      '<input type="text" name="website" placeholder="Website (optional)" aria-label="Website" autocomplete="url">' +
+      '<p class="gd-modal-error" role="alert"></p>' +
+      '<button type="submit" class="btn btn-brand">Send My Plan Request</button>' +
+      '</form></div>';
+    document.body.appendChild(modal);
+
+    var form = modal.querySelector('form');
+    var error = modal.querySelector('.gd-modal-error');
+    var lastFocus = null;
+
+    function open() {
+      lastFocus = document.activeElement;
+      modal.hidden = false;
+      document.body.classList.add('gd-modal-open');
+      form.elements.name.focus();
+    }
+    function close() {
+      modal.hidden = true;
+      document.body.classList.remove('gd-modal-open');
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('.header-cta, [data-open-popup]')) {
+        e.preventDefault();
+        var header = document.querySelector('.site-header');
+        if (header) header.classList.remove('nav-open');
+        open();
+      } else if (e.target === modal || e.target.closest('.gd-modal-close')) {
+        close();
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !modal.hidden) close();
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var f = form.elements;
+      if (!f.name.value.trim()) { error.textContent = 'Please add your name.'; f.name.focus(); return; }
+      if (f.phone.value.replace(/\D/g, '').length < 7) { error.textContent = 'Please add a valid phone number.'; f.phone.focus(); return; }
+      if (!f.email.value.trim() || !f.email.checkValidity()) { error.textContent = 'Please add a valid email address.'; f.email.focus(); return; }
+      error.textContent = '';
+      var btn = form.querySelector('[type="submit"]');
+      btn.disabled = true; btn.textContent = 'Sending…';
+      window.gdSubmitLead(form, 'popup').catch(function (ex) {
+        error.textContent = ex.message;
+        btn.disabled = false; btn.textContent = 'Send My Plan Request';
+      });
     });
   }
 
@@ -299,6 +440,9 @@
     initPlanBuilder();
     initIndustriesSlider();
     initStaticButtons();
+    initPopup();
+
+    document.querySelectorAll('.ls-form').forEach(function (form) { window.gdHandleForm(form, 'local-seo-form'); });
   }
 
   init();

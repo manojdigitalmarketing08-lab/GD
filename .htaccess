@@ -5,8 +5,21 @@ DirectoryIndex router.php
   RewriteEngine On
   RewriteBase /
 
+  # One canonical origin: http / non-www all 301 to https://www. (skips localhost/dev hosts).
+  RewriteCond %{HTTP_HOST} ^(www\.)?gddigitalmarketing\.com$ [NC]
+  RewriteCond %{HTTPS} off
+  RewriteRule ^ https://www.gddigitalmarketing.com%{REQUEST_URI} [R=301,L,NE]
+
+  RewriteCond %{HTTP_HOST} ^gddigitalmarketing\.com$ [NC]
+  RewriteRule ^ https://www.gddigitalmarketing.com%{REQUEST_URI} [R=301,L,NE]
+
   # Real static assets are served directly by Apache.
   RewriteCond %{REQUEST_URI} \.(css|js|webp|png|jpe?g|svg|gif|ico|woff2?|txt|xml)$ [NC]
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^ - [L]
+
+  # API endpoints run as real PHP files (not through the page router).
+  RewriteCond %{REQUEST_URI} ^/api/lead\.php$
   RewriteCond %{REQUEST_FILENAME} -f
   RewriteRule ^ - [L]
 

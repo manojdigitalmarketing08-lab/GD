@@ -45,6 +45,11 @@ if (PHP_SAPI === 'cli-server' && strpos($path, '/.') === false && is_file($root 
     return false;
 }
 
+// API endpoints (PHP built-in server): execute the real file.
+if (PHP_SAPI === 'cli-server' && preg_match('#^/api/lead\.php$#', $path) && is_file($root . $path)) {
+    return false;
+}
+
 // Header/footer fragments fetched by js/script.js are served as-is.
 if ($path === '/header.html' || $path === '/footer.html' || $path === '/404.html') {
     serve_html($root . $path);

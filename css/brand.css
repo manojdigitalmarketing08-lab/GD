@@ -56,3 +56,40 @@ h2.section-title {
 .service-figure figure { margin: 0; border-radius: 20px; overflow: hidden; aspect-ratio: 1600 / 840; box-shadow: 0 24px 60px -28px rgba(12, 18, 24, .45); background: #14110f; }
 .service-figure img { width: 100%; height: 100%; object-fit: cover; display: block; }
 @media (max-width: 640px) { .service-figure figure { border-radius: 14px; aspect-ratio: 4 / 3; } }
+
+/* ----- Header social icons ----- */
+.header-social { display: inline-flex; align-items: center; gap: 8px; margin-inline: 4px 12px; }
+.header-social a {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 50%;
+  color: #0F1017; border: 1px solid rgba(15, 16, 23, 0.25);
+  transition: background 160ms ease, border-color 160ms ease;
+}
+.header-social a:hover { background: var(--accent); border-color: var(--accent); }
+@media (max-width: 860px) {
+  .header-social { display: none; }
+  .site-header.nav-open .header-social { display: flex; justify-content: center; margin: var(--space-3) 0 0; }
+}
+@media (max-width: 1100px) and (min-width: 861px) { .header-social { display: none; } }
+
+/* ----- About page copy ----- */
+.about-copy { max-width: 760px; }
+.about-copy p + p { margin-top: 1em; }
+.basics > .about-copy { max-width: none; }
+
+/* ----- Popup lead form ----- */
+.gd-modal { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(15, 16, 23, 0.7); overflow-y: auto; }
+.gd-modal[hidden] { display: none; }
+.gd-modal-box { position: relative; width: 100%; max-width: 480px; background: #fff; border-radius: 16px; padding: 36px 32px 32px; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4); text-align: center; }
+.gd-modal-box .title { font-size: 1.7rem; margin: 12px 0 8px; }
+.gd-modal-box > p { margin-bottom: 20px; }
+.gd-modal-close { position: absolute; top: 10px; right: 14px; width: 36px; height: 36px; border: 0; background: none; font-size: 1.8rem; line-height: 1; color: #0F1017; cursor: pointer; border-radius: 50%; }
+.gd-modal-close:hover { background: rgba(15, 16, 23, 0.08); }
+.gd-modal-form { display: grid; gap: 12px; text-align: left; }
+.gd-modal-form input { width: 100%; padding: 13px 14px; border: 1px solid #cfd8da; border-radius: 6px; background: #fff; color: #0F1017; font: inherit; }
+.gd-modal-form input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.gd-modal-form .btn { justify-content: center; width: 100%; }
+.gd-modal-error { min-height: 1.2em; margin: 0; color: #b42318; font-size: 0.9rem; }
+body.gd-modal-open { overflow: hidden; }
+
+.gd-form-error { grid-column: 1 / -1; min-height: 1.2em; margin: 4px 0 0; color: #ff8a80; font-size: 0.9rem; }
