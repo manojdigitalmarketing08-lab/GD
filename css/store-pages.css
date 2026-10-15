@@ -588,17 +588,19 @@
 .pg-gm .gm-body { padding: 24px 26px 28px; display: grid; gap: 12px; }
 .pg-gm .gm-body h3 { font-size: 1.5rem; }
 .pg-gm .gm-line { font-size: 0.95rem; color: var(--text-muted); }
-.pg-gm .gm-ph { color: #aab5b8; font-style: italic; font-weight: 400; }
+.pg-gm .gm-ph { color: #5f6b70; font-style: italic; font-weight: 400; }
 .pg-gm .gm-line .gm-real { display: none; color: var(--ink); font-weight: 600; }
 .pg-gm .has-cats .gm-cat .gm-ph, .pg-gm .has-rev .gm-rev .gm-ph, .pg-gm .has-nap .gm-nap .gm-ph { display: none; }
 .pg-gm .has-cats .gm-cat .gm-real, .pg-gm .has-rev .gm-rev .gm-real, .pg-gm .has-nap .gm-nap .gm-real { display: inline; }
 .pg-gm .has-rev .gm-rev .gm-real { color: #b9852b; }
-.pg-gm .gm-chips { display: flex; gap: 8px; flex-wrap: wrap; opacity: 0.25; transition: opacity .3s; }
-.pg-gm .gm-chips span { background: var(--charcoal); color: #fff; border-radius: 999px; padding: 6px 14px; font-size: 0.82rem; }
-.pg-gm .gm-post, .pg-gm .gm-qa { display: grid; gap: 4px; border: 1px dashed #c3ccce; border-radius: 14px; padding: 14px 16px; opacity: 0.25; transition: opacity .3s; font-size: 0.9rem; }
-.pg-gm .gm-post b, .pg-gm .gm-qa b { color: var(--accent-ink); font-family: var(--serif); font-style: italic; font-weight: 500; }
-.pg-gm .gm-post span, .pg-gm .gm-qa span { color: var(--ink); }
-.pg-gm .has-serv .gm-chips, .pg-gm .has-posts .gm-post, .pg-gm .has-qa .gm-qa { opacity: 1; }
+.pg-gm .gm-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.pg-gm .gm-chips span { background: #e6ebec; color: #4a555a; border-radius: 999px; padding: 6px 14px; font-size: 0.82rem; transition: background .3s, color .3s; }
+.pg-gm .has-serv .gm-chips span { background: var(--charcoal); color: #fff; }
+.pg-gm .gm-post, .pg-gm .gm-qa { display: grid; gap: 4px; border: 1px dashed #c3ccce; border-radius: 14px; padding: 14px 16px; font-size: 0.9rem; }
+.pg-gm .gm-post b, .pg-gm .gm-qa b { color: #5f6b70; font-family: var(--serif); font-style: italic; font-weight: 500; }
+.pg-gm .gm-post span, .pg-gm .gm-qa span { color: #4a555a; }
+.pg-gm .has-posts .gm-post b, .pg-gm .has-qa .gm-qa b { color: var(--accent-ink); }
+.pg-gm .has-posts .gm-post span, .pg-gm .has-qa .gm-qa span { color: var(--ink); }
 .pg-gm .has-posts .gm-post, .pg-gm .has-qa .gm-qa { border-style: solid; border-color: var(--accent-ink); background: rgba(24, 222, 235, 0.08); }
 
 .pg-gm .gm-pins { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }

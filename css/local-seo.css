@@ -268,3 +268,6 @@ section.ls-sec.alt { background: #F3F7F7; }
 /* Readability: darker, slightly heavier description text */
 .ls-main { --text-muted: #394146; }
 .ls-main p, .ls-main li { font-weight: 500; }
+
+.ls-form input, .ls-form select { min-width: 0; font-family: inherit; text-overflow: ellipsis; }
+.ls-form select { padding-right: 32px; }

@@ -442,6 +442,14 @@
     initStaticButtons();
     initPopup();
 
+    document.querySelectorAll('.contact-form').forEach(function (form) {
+      window.gdHandleForm(form, 'contact-form', function (f) {
+        if (!f.elements.name.value.trim()) return 'Please add your name.';
+        if (!f.elements.email.value.trim() || !f.elements.email.checkValidity()) return 'Please add a valid email address.';
+        return '';
+      });
+    });
+
     document.querySelectorAll('.ls-form').forEach(function (form) { window.gdHandleForm(form, 'local-seo-form'); });
   }
 
