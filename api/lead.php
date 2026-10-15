@@ -175,11 +175,18 @@ if (!empty($mail['enabled'])) {
         $smtp = new Smtp($mail);
         $smtp->send($mail['notify_to'], "New lead: $name ($pagePath)", implode("\n", $lines), $email);
         $emailStatus = 'sent';
-        if (!empty($mail['autoreply'])) {
+        // The auto-reply goes to an unverified address, so: never echo free text
+        // (only a plain-looking first name) and cap auto-replies per hour site-wide.
+        $hourly = $pdo->prepare('SELECT COUNT(*) FROM leads WHERE created_at > ? AND email_status LIKE ?');
+        $hourly->execute([date('Y-m-d H:i:s', time() - 3600), '%autoreply%']);
+        $underCap = (int) $hourly->fetchColumn() < (int) ($mail['autoreply_hourly_cap'] ?? 30);
+        if (!empty($mail['autoreply']) && $underCap) {
+            $firstWord = strtok($name, ' ') ?: '';
+            $first = preg_match('/^[\p{L}][\p{L}.\'-]{0,29}$/u', $firstWord) ? $firstWord : 'there';
             $smtp->send(
                 $email,
                 'We received your request | GD Digital Marketing',
-                "Hi $name,\n\nThanks for contacting GD Digital Marketing. A senior strategist will review your details "
+                "Hi $first,\n\nThanks for contacting GD Digital Marketing. A senior strategist will review your details "
                 . "and reply within one business day.\n\nGD Digital Marketing\nhttps://www.gddigitalmarketing.com\n"
             );
             $emailStatus = 'sent+autoreply';

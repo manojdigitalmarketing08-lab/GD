@@ -23,6 +23,7 @@ return [
         'from_name' => 'GD Digital Marketing',
         'notify_to' => 'hello@gddigitalmarketing.com', // receives new-lead alerts
         'autoreply' => true,           // confirmation email to the visitor
+        'autoreply_hourly_cap' => 30,  // max auto-replies per hour across the whole site
     ],
 
     // WhatsApp Business Cloud API (Meta). Sends an alert to the team number.
