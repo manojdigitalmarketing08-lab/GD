@@ -426,14 +426,58 @@
     });
   }
 
+  // ---- Floating contact buttons ------------------------------------------
+  // Fill these in; an empty value hides that button.
+  //   whatsapp: number with country code, digits only, e.g. '919876543210'
+  //   telegram: username without @, e.g. 'gd_marketers'
+  //   phone:    number with country code, digits only, e.g. '919876543210'
+  var CONTACT = { whatsapp: '919123563756', telegram: '', phone: '919123563756' };
+
+  function initFloatingContact() {
+    var c = window.GD_CONTACT || CONTACT;
+    var items = [];
+    if (c.whatsapp) items.push({
+      key: 'whatsapp', label: 'Chat on WhatsApp',
+      href: 'https://wa.me/' + c.whatsapp.replace(/\D/g, '') + '?text=' + encodeURIComponent('Hi GD Digital Marketing, I would like to know more about your services.'),
+      icon: '<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M12.04 2a9.9 9.9 0 0 0-8.5 14.95L2 22l5.2-1.5A9.9 9.9 0 1 0 12.04 2zm0 1.8a8.1 8.1 0 1 1-4.3 14.96l-.3-.2-3.1.9.9-3-.2-.3A8.1 8.1 0 0 1 12.04 3.8zm-3.2 4.1c-.2 0-.5.1-.7.4-.3.3-1 1-1 2.4s1 2.8 1.200 3c.1.2 2 3.1 4.900 4.300 2.400 1 2.900.8 3.400.7.600-.1 1.700-.7 1.900-1.400.2-.7.2-1.200.2-1.400-.1-.1-.3-.2-.7-.4l-1.700-.8c-.2-.1-.4-.1-.6.100l-.8 1c-.1.200-.3.200-.6.100-.9-.4-1.800-1-2.600-2-.2-.3-.7-.9-.9-1.400-.1-.2 0-.4.100-.5l.4-.5.3-.4v-.4l-.8-1.900c-.2-.5-.4-.5-.6-.5z"/></svg>'
+    });
+    if (c.telegram) items.push({
+      key: 'telegram', label: 'Message on Telegram',
+      href: 'https://t.me/' + c.telegram.replace(/^@/, ''),
+      icon: '<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true"><path d="M21.9 4.1 18.7 19.6c-.2 1.100-.9 1.400-1.800.9l-4.900-3.600-2.400 2.300c-.3.300-.5.500-1 .5l.3-5 9.100-8.200c.4-.3-.1-.5-.6-.2L6.200 13l-4.800-1.500c-1-.3-1.100-1 .2-1.500l18.800-7.300c.9-.3 1.600.2 1.300 1.400z"/></svg>'
+    });
+    if (c.phone) items.push({
+      key: 'call', label: 'Call us',
+      href: 'tel:+' + c.phone.replace(/\D/g, ''),
+      icon: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.500 1.500a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>'
+    });
+    if (!items.length) return;
+
+    var box = document.createElement('div');
+    box.className = 'gd-float';
+    box.setAttribute('role', 'complementary');
+    box.setAttribute('aria-label', 'Contact us');
+    box.innerHTML = items.map(function (i) {
+      var external = i.key !== 'call';
+      return '<a class="gd-float-' + i.key + '" href="' + i.href + '" aria-label="' + i.label + '" title="' + i.label + '"' +
+        (external ? ' target="_blank" rel="noopener noreferrer"' : '') + ' data-contact="' + i.key + '">' + i.icon + '</a>';
+    }).join('');
+    document.body.appendChild(box);
+
+    box.addEventListener('click', function (e) {
+      var a = e.target.closest('a[data-contact]');
+      if (a && typeof window.gtag === 'function') window.gtag('event', 'contact_click', { method: a.dataset.contact, page_path: location.pathname });
+    });
+  }
+
   async function init() {
     // Reveal first so content never waits on the header/footer fetch.
     initReveal();
     initSliders();
 
     await Promise.all([
-      injectFragment('header', '/header.html'),
-      injectFragment('footer', '/footer.html')
+      injectFragment('header', '/header.html?v=20261025'),
+      injectFragment('footer', '/footer.html?v=20261025')
     ]);
 
     initNavigation();
@@ -441,6 +485,7 @@
     initIndustriesSlider();
     initStaticButtons();
     initPopup();
+    initFloatingContact();
 
     document.querySelectorAll('.contact-form').forEach(function (form) {
       window.gdHandleForm(form, 'contact-form', function (f) {

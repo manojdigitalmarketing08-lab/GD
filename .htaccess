@@ -1,5 +1,6 @@
 Options -Indexes -MultiViews
-DirectoryIndex router.php
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
@@ -8,30 +9,48 @@ DirectoryIndex router.php
   # One canonical origin: http / non-www all 301 to https://www. (skips localhost/dev hosts).
   RewriteCond %{HTTP_HOST} ^(www\.)?gddigitalmarketing\.com$ [NC]
   RewriteCond %{HTTPS} off
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
   RewriteRule ^ https://www.gddigitalmarketing.com%{REQUEST_URI} [R=301,L,NE]
 
   RewriteCond %{HTTP_HOST} ^gddigitalmarketing\.com$ [NC]
   RewriteRule ^ https://www.gddigitalmarketing.com%{REQUEST_URI} [R=301,L,NE]
 
-  # Real static assets are served directly by Apache.
-  RewriteCond %{REQUEST_URI} \.(css|js|webp|png|jpe?g|svg|gif|ico|woff2?|txt|xml)$ [NC]
-  RewriteCond %{REQUEST_FILENAME} -f
-  RewriteRule ^ - [L]
+  # Old service URLs -> canonical slugs.
+  RewriteRule ^services/local-seo/?$              /services/local-seo-agency [R=301,L]
+  RewriteRule ^services/gmb-optimization/?$       /services/gmb-optimization-services [R=301,L]
+  RewriteRule ^services/google-ads/?$             /services/google-ads-marketing-agency [R=301,L]
+  RewriteRule ^services/meta-ads/?$               /services/meta-ads-agency [R=301,L]
+  RewriteRule ^services/content-marketing/?$      /services/content-marketing-agency [R=301,L]
+  RewriteRule ^services/social-media-marketing/?$ /services/social-media-marketing-agency [R=301,L]
+  RewriteRule ^services/email-marketing/?$        /services/email-marketing-agency [R=301,L]
+  RewriteRule ^services/influencer-marketing/?$   /services/influencer-marketing-service [R=301,L]
 
-  # API endpoints run as real PHP files (not through the page router).
-  RewriteCond %{REQUEST_URI} ^/api/lead\.php$
-  RewriteCond %{REQUEST_FILENAME} -f
-  RewriteRule ^ - [L]
+  # /index.html -> /   (only for real browser requests, so internal rewrites never loop)
+  RewriteCond %{THE_REQUEST} \s/+index\.html[\s?]
+  RewriteRule ^index\.html$ / [R=301,L]
 
-  # Everything else (pages, legacy .html URLs, 404s) goes through the router.
-  RewriteCond %{REQUEST_URI} !^/router\.php$
-  RewriteRule ^ router.php [L,QSA]
+  # /page.html -> /page  (header/footer/404 fragments are fetched as .html on purpose)
+  RewriteCond %{THE_REQUEST} \s/+[^\s?]+\.html[\s?]
+  RewriteCond %{REQUEST_URI} !^/(header|footer|404)\.html$
+  RewriteRule ^(.+)\.html$ /$1 [R=301,L]
+
+  # /page/ -> /page
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.+)/$ /$1 [R=301,L]
+
+  # /page -> page.html  (clean URLs)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+  RewriteRule ^(.+)$ $1.html [L]
 </IfModule>
 
-# Block direct access to hidden/dev files.
-<FilesMatch "^\.|\.(md|log|sh)$">
+# Block direct access to hidden/dev files. router.php is only for local testing.
+<FilesMatch "^\.|\.(md|log|sh)$|^router\.php$">
   Require all denied
 </FilesMatch>
+
+AddType font/woff2 .woff2
 
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"
@@ -43,4 +62,6 @@ DirectoryIndex router.php
   ExpiresByType text/css "access plus 1 month"
   ExpiresByType application/javascript "access plus 1 month"
   ExpiresByType image/webp "access plus 6 months"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType application/font-woff2 "access plus 1 year"
 </IfModule>

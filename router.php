@@ -1,14 +1,10 @@
 <?php
 /**
- * Front controller for clean URLs.
+ * LOCAL TESTING ONLY. Not needed (and not served) on Hostinger.
  *
- *   /                        -> index.html
- *   /services/local-seo-agency -> services/local-seo-agency.html
- *   /some-page                 -> some-page.html
- *
- * Legacy *.html, trailing-slash URLs and renamed slugs are 301-redirected
- * to the canonical slash-less form (the homepage stays "/"). Works under Apache (via .htaccess) and the PHP
- * built-in server:  php -S localhost:8000 router.php
+ * The live site gets clean URLs and redirects from .htaccess alone.
+ * This file reproduces the same behaviour for the PHP built-in server:
+ *     php -S localhost:8000 router.php
  */
 
 function redirect_to(string $location, string $query): void

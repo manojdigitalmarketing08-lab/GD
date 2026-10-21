@@ -205,7 +205,7 @@ section.ls-sec.alt { background: #F3F7F7; }
 .ls-faq details[open] summary::after { transform: translateY(-30%) rotate(-135deg); }
 .ls-faq details p { padding: 0 0 20px; }
 .ls-faq details p strong { color: var(--ink); }
-.ls-meta { text-align: center; font-size: 0.82rem; opacity: 0.7; margin-top: 28px; }
+.ls-meta { text-align: center; font-size: 0.82rem; color: #5f6b70; margin-top: 28px; }
 
 /* ----- Search / Rank / Grow band ----- */
 .ls-trio { display: grid; grid-template-columns: repeat(3, 1fr); }

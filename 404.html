@@ -17,14 +17,13 @@
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://www.gddigitalmarketing.com/assets/images/404.webp" />
 <meta name="twitter:image:alt" content="A lost-and-found shelf of tagged items with one teal umbrella glowing" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link rel="preload" href="/header.html" as="fetch">
-<link rel="preload" href="/footer.html" as="fetch">
-<link rel="stylesheet" href="/css/partials.css">
-<link rel="stylesheet" href="/css/styles.css">
-<link rel="stylesheet" href="/css/brand.css">
+<link rel="preload" href="/header.html?v=20261025" as="fetch">
+<link rel="preload" href="/footer.html?v=20261025" as="fetch">
+<link rel="preload" href="/fonts/outfit-latin.woff2?v=1" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css?v=20261025">
+<link rel="stylesheet" href="/css/partials.css?v=20261025">
+<link rel="stylesheet" href="/css/styles.css?v=20261025">
+<link rel="stylesheet" href="/css/brand.css?v=20261025">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -41,7 +40,7 @@
       <p style="max-width: 480px; margin: 16px auto 32px;">The link you followed is broken or the page has moved. Let's get you back to something useful.</p>
       <div class="hero-actions" style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
         <a href="/" class="btn btn-brand">Back to Home <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M3 11L11 3M11 3H4M11 3V10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        <a href="/#marketing-plan" class="btn btn-line">Build My Marketing Plan</a>
+        <a href="/contact-us" data-open-popup class="btn btn-line">Build My Marketing Plan</a>
       </div>
       <p style="margin-top: 40px; font-size: 0.92rem;">Looking for a service? <a href="/services/seo-marketing-agency" style="color: var(--brand-dark); text-decoration: underline;">SEO</a> · <a href="/services/google-ads-marketing-agency" style="color: var(--brand-dark); text-decoration: underline;">Google Ads</a> · <a href="/services/local-seo-agency" style="color: var(--brand-dark); text-decoration: underline;">Local SEO</a></p>
     </div>
@@ -50,6 +49,41 @@
 </main>
 <div id="footer"></div>
 
-<script src="/js/script.js" defer></script>
+<script src="/js/script.js?v=20261025" defer></script>
+<script defer>
+              function googletag() {
+                var head = document.getElementsByTagName("head")[0];
+                var script = document.createElement("script");
+                script.type = "text/javascript";
+                script.src = "https://www.googletagmanager.com/gtag/js?id=G-NG68EBGDNR";
+                script.defer = true;
+                head.appendChild(script);
+              }
+              setTimeout(googletag, 7000);
+              window.dataLayer = window.dataLayer || [];
+              function gtag() { dataLayer.push(arguments); }
+              setTimeout(() => {
+                gtag('js', new Date());
+                gtag('config', 'G-NG68EBGDNR', { 'debug_mode': true });
+              }, 7000);
+    </script>
+<!--- End google analytics -->
+<!-- Default Statcounter code for GD Digital Marketing
+https://www.gddigitalmarketing.com/ -->
+<script type="text/javascript">
+var sc_project=13339498;
+var sc_invisible=1;
+var sc_security="f8a36336";
+</script>
+<script type="text/javascript"
+src="https://www.statcounter.com/counter/counter.js"
+async></script>
+<noscript><div class="statcounter"><a title="Web Analytics"
+href="https://statcounter.com/" target="_blank"><img
+class="statcounter"
+src="https://c.statcounter.com/13339498/0/f8a36336/1/"
+alt="Web Analytics"
+referrerPolicy="no-referrer-when-downgrade"></a></div></noscript>
+<!-- End of Statcounter Code -->
 </body>
 </html>

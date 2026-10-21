@@ -131,7 +131,7 @@
 }
 .mega-col li::marker { color: #fff; }
 .main-nav .mega-col a { color: #D5DEE2; font-size: 1.05rem; line-height: 1.35; }
-.main-nav .mega-col li:first-child a { color: #fff; font-weight: 700; }
+.main-nav .mega-col li:first-child a { color: #fff; font-weight: 500; }
 .main-nav .mega-col a:hover { color: var(--accent); }
 
 .nav-toggle {
