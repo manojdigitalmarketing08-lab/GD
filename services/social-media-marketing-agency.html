@@ -6,7 +6,7 @@
 <title>Social Media Marketing Agency | Social Media Marketing Consultant</title>
 <meta name="description" content="Grow your brand with a social media marketing agency offering expert SMM agency solutions and result-driven social media marketing services.">
 <meta name="keywords" content="social media marketing agency, social media marketing services, social media marketing agency for small business, social media agency near me">
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="index, follow">
 <link rel="canonical" href="https://www.gddigitalmarketing.com/services/social-media-marketing-agency">
 <link rel="icon" type="image/webp" href="/images/favicon.webp">
 <meta property="og:locale" content="en_US" />
@@ -29,16 +29,11 @@
 <meta name="twitter:image" content="https://www.gddigitalmarketing.com/assets/images/social-media-marketing-agency.webp" />
 <meta name="twitter:image:alt" content="Posts people actually answer: teal and paper chat bubbles" />
 
-<link rel="preload" href="/header.html?v=20261025" as="fetch">
-<link rel="preload" href="/footer.html?v=20261025" as="fetch">
+<link rel="preload" href="/header.html?v=20261030" as="fetch">
+<link rel="preload" href="/footer.html?v=20261030" as="fetch">
 <link rel="preload" href="/fonts/outfit-latin.woff2?v=1" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/inter-latin.woff2?v=1" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/fonts.css?v=20261025">
-<link rel="stylesheet" href="/css/partials.css?v=20261025">
-<link rel="stylesheet" href="/css/service.css?v=20261025">
-<link rel="stylesheet" href="/css/brand.css?v=20261025">
-<link rel="stylesheet" href="/css/store.css?v=20261025">
-<link rel="stylesheet" href="/css/store-pages.css?v=20261025">
+<link rel="stylesheet" href="/css/services.css?v=20261030">
 </head>
 <body class="pg-so">
 <div id="header"></div>
@@ -377,14 +372,7 @@
     <div class="st-form-card st-rv">
       <h3>Free social media audit</h3>
       <p id="so-form-note">Tell us about your brand. We reply within one business day.</p>
-      <form class="st-form" action="#" method="post">
-        <input type="text" name="name" placeholder="Your name" aria-label="Your name" required>
-        <input type="tel" name="phone" placeholder="Phone" aria-label="Phone" required>
-        <input type="email" name="email" class="full" placeholder="Work email" aria-label="Work email" required>
-        <input type="text" name="handle" class="full" placeholder="Your main social handle (optional)" aria-label="Main social handle">
-        <input type="hidden" name="package" id="so-pkg" value="">
-        <button type="submit" class="btn btn-primary full">Get My Free Audit →</button>
-      </form>
+      <div data-gd-form data-form-type="service-social" data-service="Social Media Marketing" data-submit="Get My Free Audit →"></div>
       <p class="st-fine">Free consultation · No obligation · Actionable growth insights</p>
     </div>
   </div>
@@ -395,8 +383,8 @@
 <div class="st-bar" role="complementary" aria-label="Quick quote"><span>Your plan: <b>Social Media</b></span><a href="/contact-us" data-open-popup>Get a free quote</a></div>
 
 <div id="footer"></div>
-<script src="/js/script.js?v=20261025" defer></script>
-<script src="/js/store.js?v=20261025" defer></script>
+<script src="/js/script.js?v=20261030" defer></script>
+<script src="/js/store.js?v=20261030" defer></script>
 <script>
 (function () {
   var rhythm = {
@@ -417,7 +405,7 @@
     var ul = $('#so-list'); ul.replaceChildren();
     items.forEach(function (t) { var li = document.createElement('li'); li.textContent = t; ul.appendChild(li); });
     var full = title + (adds.length ? ' + ' + adds.join(', ') : '');
-    $('#so-pkg').value = full;
+    window.gdPlan = full;
     $('#so-form-note').textContent = 'Your package: ' + full + '. We’ll quote exactly this.';
   }
   document.querySelectorAll('.so-opts input').forEach(function (i) { i.addEventListener('change', render); });

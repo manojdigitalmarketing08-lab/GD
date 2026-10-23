@@ -6,7 +6,7 @@
 <title>SEO Marketing Agency | Organic Search Engine Optimization Services</title>
 <meta name="description" content="GD Digital Marketing is an SEO marketing agency offering organic search engine optimization services to improve rankings, traffic, and leads.">
 <meta name="keywords" content="SEO marketing agency, Organic Search Engine Optimization Services, SEO Agency Near Me, Online SEO Services">
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="index, follow">
 <link rel="canonical" href="https://www.gddigitalmarketing.com/services/seo-marketing-agency">
 <link rel="icon" type="image/webp" href="/images/favicon.webp">
 <meta property="og:locale" content="en_US" />
@@ -29,16 +29,11 @@
 <meta name="twitter:image" content="https://www.gddigitalmarketing.com/assets/images/seo-marketing-agency.webp" />
 <meta name="twitter:image:alt" content="Page two is where businesses disappear: a staircase ranked 1 to 10" />
 
-<link rel="preload" href="/header.html?v=20261025" as="fetch">
-<link rel="preload" href="/footer.html?v=20261025" as="fetch">
+<link rel="preload" href="/header.html?v=20261030" as="fetch">
+<link rel="preload" href="/footer.html?v=20261030" as="fetch">
 <link rel="preload" href="/fonts/outfit-latin.woff2?v=1" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/fonts/inter-latin.woff2?v=1" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/fonts.css?v=20261025">
-<link rel="stylesheet" href="/css/partials.css?v=20261025">
-<link rel="stylesheet" href="/css/service.css?v=20261025">
-<link rel="stylesheet" href="/css/brand.css?v=20261025">
-<link rel="stylesheet" href="/css/store.css?v=20261025">
-<link rel="stylesheet" href="/css/store-pages.css?v=20261025">
+<link rel="stylesheet" href="/css/services.css?v=20261030">
 </head>
 <body class="pg-se">
 <div id="header"></div>
@@ -297,14 +292,7 @@
     <div class="st-form-card st-rv">
       <h3>Free SEO audit</h3>
       <p id="se-form-note">Tell us about your site. We reply within one business day.</p>
-      <form class="st-form" action="#" method="post">
-        <input type="text" name="name" placeholder="Your name" aria-label="Your name" required>
-        <input type="tel" name="phone" placeholder="Phone" aria-label="Phone" required>
-        <input type="email" name="email" class="full" placeholder="Work email" aria-label="Work email" required>
-        <input type="text" name="site" class="full" placeholder="Website (optional)" aria-label="Website">
-        <input type="hidden" name="plan" id="se-plan" value="">
-        <button type="submit" class="btn btn-primary full">Get My Free Audit →</button>
-      </form>
+      <div data-gd-form data-form-type="service-seo" data-service="SEO" data-submit="Get My Free Audit →"></div>
       <p class="st-fine">Free consultation · No obligation · Actionable growth insights</p>
     </div>
   </div>
@@ -315,8 +303,8 @@
 <div class="st-bar" role="complementary" aria-label="Your plan"><span>Your plan: <b id="se-count">SEO</b></span><a href="/contact-us" data-open-popup>Get a free quote</a></div>
 
 <div id="footer"></div>
-<script src="/js/script.js?v=20261025" defer></script>
-<script src="/js/store.js?v=20261025" defer></script>
+<script src="/js/script.js?v=20261030" defer></script>
+<script src="/js/store.js?v=20261030" defer></script>
 <script>
 (function () {
   // Ranking ladder: "yourbrand.com" climbs one place at a time, then resets
@@ -354,11 +342,11 @@
   });
   var picked = [];
   function render() {
-    var sum = document.getElementById('se-sum'), count = document.getElementById('se-count'), plan = document.getElementById('se-plan'), note = document.getElementById('se-form-note');
-    if (!picked.length) { sum.textContent = "Nothing added yet. Pick the services you're curious about."; count.textContent = 'SEO'; plan.value = ''; return; }
+    var sum = document.getElementById('se-sum'), count = document.getElementById('se-count'), note = document.getElementById('se-form-note');
+    if (!picked.length) { sum.textContent = "Nothing added yet. Pick the services you're curious about."; count.textContent = 'SEO'; window.gdPlan = ''; return; }
     sum.textContent = picked.length + (picked.length === 1 ? ' service: ' : ' services: ') + picked.join(' · ');
     count.textContent = picked.length + (picked.length === 1 ? ' service' : ' services');
-    plan.value = picked.join('; ');
+    window.gdPlan = picked.join('; ');
     note.textContent = 'Your plan (' + picked.length + '): ' + picked.join(', ') + '. We’ll quote exactly this.';
   }
   prods.forEach(function (p) {

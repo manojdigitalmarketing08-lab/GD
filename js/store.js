@@ -97,9 +97,4 @@
       });
     });
   });
-
-  // Forms post to /api/lead.php via script.js (gdHandleForm)
-  document.querySelectorAll('.st-form').forEach(function (form) {
-    window.gdHandleForm(form, 'service-form');
-  });
 })();

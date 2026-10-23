@@ -694,7 +694,7 @@ p { color: var(--text-muted); font-weight: 500; text-wrap: pretty; }
 .slider { margin-bottom: 28px; }
 .slider-track {
   display: grid; grid-auto-flow: column; grid-auto-columns: 100%; gap: 16px;
-  overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth;
+  overflow-x: auto; scroll-snap-type: x mandatory;
   scrollbar-width: none; padding: 2px;
 }
 .slider-track::-webkit-scrollbar { display: none; }

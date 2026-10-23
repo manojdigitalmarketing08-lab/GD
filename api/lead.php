@@ -65,23 +65,49 @@ if (!is_array($in)) {
     $in = $_POST;
 }
 
-$name  = clip($in['name'] ?? '', 120);
-$email = clip($in['email'] ?? '', 190);
-$phone = clip($in['phone'] ?? '', 40);
-$site  = clip($in['website'] ?? '', 255);
+// Honeypot: real visitors never fill this. Pretend success, store nothing.
+if (clip($in['company_fax'] ?? '', 50) !== '') {
+    respond(200, ['ok' => true]);
+    exit;
+}
 
-if ($name === '') {
-    respond(422, ['ok' => false, 'error' => 'Please add your name.']);
+$name        = clip($in['name'] ?? '', 80);
+$email       = clip($in['email'] ?? '', 190);
+$countryCode = clip($in['country_code'] ?? '+91', 8);
+$phone       = preg_replace('/\D/', '', (string) ($in['phone'] ?? ''));
+$phone       = ltrim($phone, '0');
+$site        = clip($in['website'] ?? '', 255);
+$service     = clip($in['service'] ?? '', 80);
+$message     = clip($in['message'] ?? '', 1000);
+
+// Same rules as the browser form (js/script.js), enforced again here.
+$phoneRules = ['+91' => [10, 10, '/^[6-9]/'], '+1' => [10, 10, '/^[2-9]/'], '+44' => [10, 10, '/^7/'], '+971' => [9, 9, null], '+65' => [8, 8, null]];
+[$minLen, $maxLen, $firstDigit] = $phoneRules[$countryCode] ?? [6, 14, null];
+
+$errors = [];
+if (!preg_match('/^[\p{L}\p{M}][\p{L}\p{M} .\'\x{2019}-]{1,79}$/u', $name)) {
+    $errors['name'] = 'Please enter your name (letters only).';
+}
+if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !preg_match('/^[^\s@<>()]+@[^\s@<>()]+\.[A-Za-z]{2,}$/', $email)) {
+    $errors['email'] = 'Please enter a valid email address.';
+}
+if (!preg_match('/^\+\d{1,4}$/', $countryCode)) {
+    $errors['phone'] = 'Please choose a valid country code.';
+} elseif ($phone === '' || strlen($phone) < $minLen || strlen($phone) > $maxLen || ($firstDigit && !preg_match($firstDigit, $phone))) {
+    $errors['phone'] = 'Please enter a valid phone number.';
+}
+if ($site !== '') {
+    if (!preg_match('/^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/\S*)?$/i', $site)) {
+        $errors['website'] = 'Please enter a valid website.';
+    } elseif (!preg_match('/^https?:\/\//i', $site)) {
+        $site = 'https://' . $site;
+    }
+}
+if ($errors) {
+    respond(422, ['ok' => false, 'error' => reset($errors), 'fields' => $errors]);
     exit;
 }
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    respond(422, ['ok' => false, 'error' => 'Please add a valid email address.']);
-    exit;
-}
-if ($phone !== '' && strlen(preg_replace('/\D/', '', $phone)) < 7) {
-    respond(422, ['ok' => false, 'error' => 'Please add a valid phone number.']);
-    exit;
-}
+$phoneFull = $countryCode . ' ' . $phone;
 
 $details = [];
 if (isset($in['details']) && is_array($in['details'])) {
@@ -114,6 +140,13 @@ try {
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     ]);
     $pdo->exec(file_get_contents(__DIR__ . '/schema.sql'));
+    // Older installs: add columns introduced later.
+    $have = array_column($pdo->query('SHOW COLUMNS FROM leads')->fetchAll(PDO::FETCH_ASSOC), 'Field');
+    foreach (['country_code' => 'VARCHAR(8) NULL AFTER phone', 'service' => 'VARCHAR(80) NULL AFTER website', 'message' => 'TEXT NULL AFTER service'] as $col => $def) {
+        if (!in_array($col, $have, true)) {
+            $pdo->exec("ALTER TABLE leads ADD COLUMN $col $def");
+        }
+    }
 
     $recent = $pdo->prepare('SELECT COUNT(*) FROM leads WHERE ip = ? AND created_at > ?');
     $recent->execute([$ip, date('Y-m-d H:i:s', time() - 600)]);
@@ -123,12 +156,12 @@ try {
     }
 
     $ins = $pdo->prepare(
-        'INSERT INTO leads (created_at, name, email, phone, website, form_type, page_path, page_url, source,
+        'INSERT INTO leads (created_at, name, email, country_code, phone, website, service, message, form_type, page_path, page_url, source,
             utm_source, utm_medium, utm_campaign, referrer, details, ip, user_agent)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
     );
     $ins->execute([
-        date('Y-m-d H:i:s'), $name, $email, $phone ?: null, $site ?: null, $formType, $pagePath,
+        date('Y-m-d H:i:s'), $name, $email, $countryCode, $phone, $site ?: null, $service ?: null, $message ?: null, $formType, $pagePath,
         'https://www.gddigitalmarketing.com' . $pagePath, $source,
         $utmSource ?: null, $utmMedium ?: null, $utmCampaign ?: null, $referrer ?: null,
         $details ? json_encode($details, JSON_UNESCAPED_UNICODE) : null, $ip, $ua,
@@ -156,8 +189,10 @@ $lines = [
     "New lead #$id",
     "Name: $name",
     "Email: $email",
-    'Phone: ' . ($phone ?: '-'),
+    "Phone: $phoneFull",
     'Website: ' . ($site ?: '-'),
+    'Service: ' . ($service ?: '-'),
+    'Message: ' . ($message ?: '-'),
     "Form: $formType",
     "Page: $pagePath",
     "Source: $source" . ($utmMedium !== '' ? " / $utmMedium" : '') . ($utmCampaign !== '' ? " / $utmCampaign" : ''),
@@ -203,7 +238,7 @@ $wa = $cfg['whatsapp'] ?? [];
 if (!empty($wa['enabled'])) {
     try {
         // Template body: "New lead: {{1}} | {{2}} | {{3}} | page {{4}} | source {{5}}"
-        (new WhatsApp($wa))->sendTemplate([$name, $phone ?: '-', $email, $pagePath, $source]);
+        (new WhatsApp($wa))->sendTemplate([$name, $phoneFull, $email, $pagePath, $source]);
         $waStatus = 'sent';
     } catch (Throwable $e) {
         $waStatus = 'failed: ' . mb_substr($e->getMessage(), 0, 200);

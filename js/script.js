@@ -27,7 +27,7 @@
       if (el.type === 'radio' && !el.checked) return;
       var v = (el.value || '').trim();
       if (!v) return;
-      if (el.name === 'name' || el.name === 'email' || el.name === 'phone') f[el.name] = v;
+      if (['name', 'email', 'phone', 'country_code', 'service', 'message', 'company_fax'].indexOf(el.name) !== -1) f[el.name] = v;
       else if (el.name === 'website' || el.name === 'site') f.website = v;
       else if (el.name === 'first_name') f.first = v;
       else if (el.name === 'last_name') f.last = v;
@@ -36,6 +36,7 @@
     if (!f.name && (f.first || f.last)) f.name = [f.first, f.last].filter(Boolean).join(' ');
     delete f.first; delete f.last;
     var t = readTouch();
+    if (window.gdPlan && /^service-/.test(formType)) details.plan = String(window.gdPlan).slice(0, 300);
     f.details = details;
     f.form_type = formType;
     f.page_path = location.pathname;
@@ -58,6 +59,126 @@
     }, function () {
       throw new Error('Network error. Please check your connection and try again.');
     });
+  };
+
+  // ---- The one lead form used everywhere (popup, contact, services, home) ----
+  // Fields: name, email, phone (country code + digits only), website, service, message.
+  // Mount point: <div data-gd-form data-form-type="..." data-service="..." data-submit="..." data-theme="dark"></div>
+  var COUNTRIES = [
+    ['IN', '+91'], ['US', '+1'], ['GB', '+44'], ['AE', '+971'], ['SA', '+966'], ['QA', '+974'], ['KW', '+965'],
+    ['OM', '+968'], ['BH', '+973'], ['SG', '+65'], ['MY', '+60'], ['ID', '+62'], ['PH', '+63'], ['TH', '+66'],
+    ['VN', '+84'], ['HK', '+852'], ['CN', '+86'], ['JP', '+81'], ['KR', '+82'], ['AU', '+61'], ['NZ', '+64'],
+    ['CA', '+1'], ['DE', '+49'], ['FR', '+33'], ['NL', '+31'], ['ES', '+34'], ['IT', '+39'], ['CH', '+41'],
+    ['IE', '+353'], ['TR', '+90'], ['RU', '+7'], ['PK', '+92'], ['BD', '+880'], ['LK', '+94'], ['NP', '+977'],
+    ['NG', '+234'], ['KE', '+254'], ['ZA', '+27'], ['BR', '+55'], ['MX', '+52']
+  ];
+  // [min digits, max digits, optional required first-digit pattern]
+  var PHONE_RULES = { '+91': [10, 10, /^[6-9]/], '+1': [10, 10, /^[2-9]/], '+44': [10, 10, /^7/], '+971': [9, 9], '+65': [8, 8] };
+  var SERVICES = ['SEO', 'Local SEO', 'Google Business Profile', 'Google Ads', 'Meta Ads', 'Social Media Marketing',
+    'Content Marketing', 'Email Marketing', 'Influencer Marketing', 'Crypto SEO', 'Not sure yet'];
+  var NAME_RE = /^[A-Za-zÀ-ɏऀ-ॿ؀-ۿ][A-Za-zÀ-ɏऀ-ॿ؀-ۿ .'’-]{1,79}$/;
+  var EMAIL_RE = /^[^\s@<>()]+@[^\s@<>()]+\.[A-Za-z]{2,}$/;
+  var SITE_RE = /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/\S*)?$/i;
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+  function formHTML(o) {
+    var codes = COUNTRIES.map(function (c) {
+      return '<option value="' + c[1] + '"' + (c[0] === 'IN' ? ' selected' : '') + '>' + c[0] + ' ' + c[1] + '</option>';
+    }).join('');
+    var services = '<option value="">Service (optional)</option>' + SERVICES.map(function (s) {
+      return '<option' + (s === o.service ? ' selected' : '') + '>' + s + '</option>';
+    }).join('');
+    return '<form class="gd-form' + (o.theme === 'dark' ? ' gd-dark' : '') + '" novalidate data-form-type="' + esc(o.type) + '">' +
+      '<div class="gd-field"><input type="text" name="name" placeholder="Your name" aria-label="Your name" autocomplete="name" maxlength="80" required><small class="gd-err"></small></div>' +
+      '<div class="gd-field"><input type="email" name="email" placeholder="Work email" aria-label="Work email" autocomplete="email" maxlength="190" required><small class="gd-err"></small></div>' +
+      '<div class="gd-field gd-full"><div class="gd-phone"><select name="country_code" aria-label="Country code">' + codes + '</select>' +
+      '<input type="tel" name="phone" inputmode="numeric" placeholder="Phone number" aria-label="Phone number" autocomplete="tel-national" maxlength="14" required></div><small class="gd-err"></small></div>' +
+      '<div class="gd-field"><input type="text" name="website" placeholder="Website (optional)" aria-label="Website" autocomplete="url" maxlength="255"><small class="gd-err"></small></div>' +
+      '<div class="gd-field"><select name="service" aria-label="Service you need">' + services + '</select><small class="gd-err"></small></div>' +
+      '<div class="gd-field gd-full"><textarea name="message" rows="3" maxlength="1000" placeholder="How can we help? (optional)" aria-label="Message"></textarea><small class="gd-err"></small></div>' +
+      '<input type="text" name="company_fax" class="gd-hp" tabindex="-1" autocomplete="off" aria-hidden="true">' +
+      '<p class="gd-form-error" role="alert"></p>' +
+      '<button type="submit" class="btn ' + (o.theme === 'dark' ? 'btn-primary' : 'btn-brand') + ' gd-full">' + esc(o.submit || 'Send My Request') + '</button>' +
+      '</form>';
+  }
+
+  function fieldError(form, name, msg) {
+    var el = form.elements[name];
+    var wrap = el.closest('.gd-field');
+    wrap.querySelector('.gd-err').textContent = msg || '';
+    wrap.classList.toggle('has-error', !!msg);
+    el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+    return msg;
+  }
+
+  function checkField(form, name) {
+    var f = form.elements, v = (f[name].value || '').trim(), msg = '';
+    if (name === 'name') {
+      if (!v) msg = 'Please enter your name.';
+      else if (!NAME_RE.test(v)) msg = 'Use letters only (at least 2).';
+    } else if (name === 'email') {
+      if (!v) msg = 'Please enter your email.';
+      else if (!EMAIL_RE.test(v) || v.length > 190) msg = 'Enter a valid email, like name@company.com.';
+    } else if (name === 'phone') {
+      var d = f.phone.value.replace(/\D/g, '').replace(/^0+/, ''), r = PHONE_RULES[f.country_code.value] || [6, 14];
+      if (!d) msg = 'Please enter your phone number.';
+      else if (d.length < r[0] || d.length > r[1]) msg = r[0] === r[1] ? 'Enter a valid ' + r[0] + '-digit number.' : 'Enter a valid number (' + r[0] + '–' + r[1] + ' digits).';
+      else if (r[2] && !r[2].test(d)) msg = 'That number does not look valid for ' + f.country_code.value + '.';
+    } else if (name === 'website') {
+      if (v && !SITE_RE.test(v)) msg = 'Enter a valid website, like yourbusiness.com.';
+    }
+    return fieldError(form, name, msg);
+  }
+
+  function wireForm(form) {
+    var phone = form.elements.phone, code = form.elements.country_code;
+    // digits only, as the visitor types or pastes
+    phone.addEventListener('input', function () {
+      var d = phone.value.replace(/\D/g, '');
+      var dial = code.value.replace(/\D/g, ''), r = PHONE_RULES[code.value] || [6, 14];
+      if (d.length > r[1] && d.indexOf(dial) === 0) d = d.slice(dial.length);   // pasted with country code
+      phone.value = d.slice(0, 14);
+    });
+    code.addEventListener('change', function () { if (phone.value) checkField(form, 'phone'); });
+    ['name', 'email', 'phone', 'website'].forEach(function (n) {
+      form.elements[n].addEventListener('blur', function () { if (form.elements[n].value.trim() || form.elements[n].required) checkField(form, n); });
+      form.elements[n].addEventListener('input', function () { if (form.elements[n].classList.contains('touched') || form.elements[n].closest('.gd-field').classList.contains('has-error')) checkField(form, n); });
+      form.elements[n].addEventListener('blur', function () { form.elements[n].classList.add('touched'); });
+    });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var general = form.querySelector('.gd-form-error');
+      general.textContent = '';
+      if (form.elements.company_fax.value) { window.location.href = '/thank-you'; return; }   // honeypot: pretend success
+      var first = null;
+      ['name', 'email', 'phone', 'website'].forEach(function (n) { if (checkField(form, n) && !first) first = form.elements[n]; });
+      if (first) { first.focus(); return; }
+      var btn = form.querySelector('[type="submit"]');
+      btn.disabled = true; btn.dataset.label = btn.textContent; btn.textContent = 'Sending…';
+      window.gdSubmitLead(form, form.dataset.formType).catch(function (ex) {
+        general.textContent = ex.message;
+        btn.disabled = false; btn.textContent = btn.dataset.label;
+      });
+    });
+  }
+
+  window.gdForm = {
+    create: function (host, o) {
+      host.innerHTML = formHTML(o);
+      var form = host.querySelector('form');
+      wireForm(form);
+      return form;
+    },
+    mount: function () {
+      document.querySelectorAll('[data-gd-form]').forEach(function (host) {
+        if (host.querySelector('form')) return;
+        window.gdForm.create(host, {
+          type: host.dataset.formType || 'form', service: host.dataset.service || '',
+          submit: host.dataset.submit || '', theme: host.dataset.theme || ''
+        });
+      });
+    }
   };
 
   // Shared submit wiring: busy state + inline error under the form.
@@ -227,6 +348,9 @@
     items.forEach(function (el) { observer.observe(el); });
   }
 
+  // Smooth sliding is set here, not in CSS: scroll-behavior:smooth + scroll-snap on the track makes Chrome report no LCP.
+  function smooth() { return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'; }
+
   function initSliders() {
     document.querySelectorAll('[data-slider]').forEach(function (slider) {
       const track = slider.querySelector('[data-slider-track]');
@@ -245,7 +369,7 @@
         const dot = document.createElement('button');
         dot.type = 'button';
         dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
-        dot.addEventListener('click', function () { track.scrollTo({ left: i * step() }); });
+        dot.addEventListener('click', function () { track.scrollTo({ left: i * step(), behavior: smooth() }); });
         if (dotsWrap) dotsWrap.appendChild(dot);
         return dot;
       });
@@ -258,8 +382,8 @@
         if (next) next.disabled = track.scrollLeft >= maxScroll;
       }
 
-      if (prev) prev.addEventListener('click', function () { track.scrollBy({ left: -step() }); });
-      if (next) next.addEventListener('click', function () { track.scrollBy({ left: step() }); });
+      if (prev) prev.addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: smooth() }); });
+      if (next) next.addEventListener('click', function () { track.scrollBy({ left: step(), behavior: smooth() }); });
       track.addEventListener('scroll', function () { window.requestAnimationFrame(update); }, { passive: true });
       window.addEventListener('resize', update);
       update();
@@ -367,21 +491,13 @@
     modal.innerHTML =
       '<div class="gd-modal-box" role="dialog" aria-modal="true" aria-labelledby="gdModalTitle">' +
       '<button type="button" class="gd-modal-close" aria-label="Close">&times;</button>' +
-      '<span class="pill">↪ Free Marketing Plan</span>' +
+      '<span class="pill">\u21aa Free Marketing Plan</span>' +
       '<h2 class="title" id="gdModalTitle">Get Your <strong>Free Marketing Plan</strong></h2>' +
       '<p>Tell us where to send it. A senior strategist replies within one business day.</p>' +
-      '<form class="gd-modal-form" novalidate>' +
-      '<input type="text" name="name" placeholder="Your name" aria-label="Your name" autocomplete="name" required>' +
-      '<input type="tel" name="phone" placeholder="Phone" aria-label="Phone" autocomplete="tel" required>' +
-      '<input type="email" name="email" placeholder="Work email" aria-label="Work email" autocomplete="email" required>' +
-      '<input type="text" name="website" placeholder="Website (optional)" aria-label="Website" autocomplete="url">' +
-      '<p class="gd-modal-error" role="alert"></p>' +
-      '<button type="submit" class="btn btn-brand">Send My Plan Request</button>' +
-      '</form></div>';
+      '<div class="gd-modal-form"></div></div>';
     document.body.appendChild(modal);
 
-    var form = modal.querySelector('form');
-    var error = modal.querySelector('.gd-modal-error');
+    var form = window.gdForm.create(modal.querySelector('.gd-modal-form'), { type: 'popup', submit: 'Send My Plan Request' });
     var lastFocus = null;
 
     function open() {
@@ -408,21 +524,6 @@
     });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && !modal.hidden) close();
-    });
-
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var f = form.elements;
-      if (!f.name.value.trim()) { error.textContent = 'Please add your name.'; f.name.focus(); return; }
-      if (f.phone.value.replace(/\D/g, '').length < 7) { error.textContent = 'Please add a valid phone number.'; f.phone.focus(); return; }
-      if (!f.email.value.trim() || !f.email.checkValidity()) { error.textContent = 'Please add a valid email address.'; f.email.focus(); return; }
-      error.textContent = '';
-      var btn = form.querySelector('[type="submit"]');
-      btn.disabled = true; btn.textContent = 'Sending…';
-      window.gdSubmitLead(form, 'popup').catch(function (ex) {
-        error.textContent = ex.message;
-        btn.disabled = false; btn.textContent = 'Send My Plan Request';
-      });
     });
   }
 
@@ -474,10 +575,11 @@
     // Reveal first so content never waits on the header/footer fetch.
     initReveal();
     initSliders();
+    window.gdForm.mount();
 
     await Promise.all([
-      injectFragment('header', '/header.html?v=20261025'),
-      injectFragment('footer', '/footer.html?v=20261025')
+      injectFragment('header', '/header.html?v=20261030'),
+      injectFragment('footer', '/footer.html?v=20261030')
     ]);
 
     initNavigation();
@@ -486,16 +588,6 @@
     initStaticButtons();
     initPopup();
     initFloatingContact();
-
-    document.querySelectorAll('.contact-form').forEach(function (form) {
-      window.gdHandleForm(form, 'contact-form', function (f) {
-        if (!f.elements.name.value.trim()) return 'Please add your name.';
-        if (!f.elements.email.value.trim() || !f.elements.email.checkValidity()) return 'Please add a valid email address.';
-        return '';
-      });
-    });
-
-    document.querySelectorAll('.ls-form').forEach(function (form) { window.gdHandleForm(form, 'local-seo-form'); });
   }
 
   init();
